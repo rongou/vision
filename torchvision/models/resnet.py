@@ -10,7 +10,7 @@ from ..utils import _log_api_usage_once
 from ._api import register_model, Weights, WeightsEnum
 from ._meta import _IMAGENET_CATEGORIES
 from ._utils import _ovewrite_named_param, handle_legacy_interface
-
+from .dystan import DyStan
 
 __all__ = [
     "ResNet",
@@ -72,7 +72,7 @@ class BasicBlock(nn.Module):
     ) -> None:
         super().__init__()
         if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
+            norm_layer = DyStan
         if groups != 1 or base_width != 64:
             raise ValueError("BasicBlock only supports groups=1 and base_width=64")
         if dilation > 1:
@@ -127,7 +127,7 @@ class Bottleneck(nn.Module):
     ) -> None:
         super().__init__()
         if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
+            norm_layer = DyStan
         width = int(planes * (base_width / 64.0)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv1x1(inplanes, width)
@@ -178,7 +178,7 @@ class ResNet(nn.Module):
         super().__init__()
         _log_api_usage_once(self)
         if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
+            norm_layer = DyStan
         self._norm_layer = norm_layer
 
         self.inplanes = 64
