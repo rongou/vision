@@ -5,72 +5,71 @@ from torch import nn
 
 
 class DyT(nn.Module):
-    def __init__(self, num_features: int) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
         super().__init__()
+        self.alpha = nn.Parameter(torch.ones(1) * init_alpha)
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.tensor(1.0))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         gamma = self.gamma.view(1, -1, 1, 1)
         beta = self.beta.view(1, -1, 1, 1)
 
-        out = gamma * torch.tanh(self.alpha * x) + beta
-        return out
+        x = torch.tanh(self.alpha * x)
+        return gamma * x + beta
 
 
 class DyTV(nn.Module):
-    def __init__(self, num_features: int) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
         super().__init__()
+        self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.ones(num_features))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        alpha = self.alpha.view(1, -1, 1, 1)
         gamma = self.gamma.view(1, -1, 1, 1)
         beta = self.beta.view(1, -1, 1, 1)
-        alpha = self.alpha.view(1, -1, 1, 1)
 
-        out = gamma * torch.tanh(alpha * x) + beta
-        return out
+        x = torch.tanh(alpha * x)
+        return gamma * x + beta
 
 
 class DyTVMC(nn.Module):
-    def __init__(self, num_features: int) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
         super().__init__()
+        self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.ones(num_features))
         self.mu = nn.Parameter(torch.zeros(num_features))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        alpha = self.alpha.view(1, -1, 1, 1)
         gamma = self.gamma.view(1, -1, 1, 1)
         beta = self.beta.view(1, -1, 1, 1)
-        alpha = self.alpha.view(1, -1, 1, 1)
         mu = self.mu.view(1, -1, 1, 1)
 
-        out = gamma * torch.tanh(alpha * (x - mu)) + beta
-        return out
+        x = torch.tanh(alpha * (x - mu))
+        return gamma * x + beta
 
 
 class DyAS(nn.Module):
-    def __init__(self, num_features: int) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
         super().__init__()
+        self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.ones(num_features))
         self.mu = nn.Parameter(torch.zeros(num_features))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        alpha = self.alpha.view(1, -1, 1, 1)
         gamma = self.gamma.view(1, -1, 1, 1)
         beta = self.beta.view(1, -1, 1, 1)
-        alpha = self.alpha.view(1, -1, 1, 1)
         mu = self.mu.view(1, -1, 1, 1)
 
-        out = alpha * (x - mu)
-        out = x / torch.sqrt(1 + out ** 2)
-        out = gamma * out + beta
-        return out
+        x = alpha * (x - mu)
+        x = x / torch.sqrt(1 + x ** 2)
+        return gamma * x + beta
 
 
 def get_norm_layer(norm_type: str) -> Callable[[int], nn.Module]:
