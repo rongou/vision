@@ -5,9 +5,9 @@ from torch import nn
 
 
 class DyT(nn.Module):
-    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
         super().__init__()
-        self.alpha = nn.Parameter(torch.ones(1) * init_alpha)
+        self.alpha = nn.Parameter(torch.tensor(init_alpha))
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
 
@@ -20,7 +20,7 @@ class DyT(nn.Module):
 
 
 class DyTV(nn.Module):
-    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
         super().__init__()
         self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
         self.gamma = nn.Parameter(torch.ones(num_features))
@@ -36,7 +36,7 @@ class DyTV(nn.Module):
 
 
 class DyTVMC(nn.Module):
-    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
         super().__init__()
         self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
         self.gamma = nn.Parameter(torch.ones(num_features))
@@ -54,7 +54,7 @@ class DyTVMC(nn.Module):
 
 
 class DyAS(nn.Module):
-    def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
+    def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
         super().__init__()
         self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
         self.gamma = nn.Parameter(torch.ones(num_features))
