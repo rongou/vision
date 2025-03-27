@@ -9,7 +9,7 @@ class DyT(nn.Module):
         super().__init__()
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.tensor(1.0))
+        self.alpha = nn.Parameter(torch.tensor(0.5))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         gamma = self.gamma.view(1, -1, 1, 1)
@@ -24,7 +24,7 @@ class DyTV(nn.Module):
         super().__init__()
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.ones(num_features))
+        self.alpha = nn.Parameter(torch.ones(num_features) * 0.5)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         gamma = self.gamma.view(1, -1, 1, 1)
@@ -40,7 +40,7 @@ class DyTVMC(nn.Module):
         super().__init__()
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.ones(num_features))
+        self.alpha = nn.Parameter(torch.ones(num_features) * 0.5)
         self.mu = nn.Parameter(torch.zeros(num_features))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -58,7 +58,7 @@ class DyAS(nn.Module):
         super().__init__()
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
-        self.alpha = nn.Parameter(torch.ones(num_features))
+        self.alpha = nn.Parameter(torch.ones(num_features) * 0.5)
         self.mu = nn.Parameter(torch.zeros(num_features))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
