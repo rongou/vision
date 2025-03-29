@@ -99,8 +99,12 @@ class DyASV(DyBase):
 class DyS(DyBase):
     """Dynamic Softsign with scalar alpha."""
 
+    def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
+        super().__init__(num_features, init_alpha, vector_alpha=False)
+        self.softsign = nn.Softsign()
+
     def activation(self, x: torch.Tensor, alpha: torch.Tensor) -> torch.Tensor:
-        return torch.softsign(alpha * x)
+        return self.softsign(alpha * x)
 
 
 class DySV(DyBase):
@@ -108,9 +112,10 @@ class DySV(DyBase):
 
     def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
         super().__init__(num_features, init_alpha, vector_alpha=True)
+        self.softsign = nn.Softsign()
 
     def activation(self, x: torch.Tensor, alpha: torch.Tensor) -> torch.Tensor:
-        return torch.softsign(alpha * x)
+        return self.softsign(alpha * x)
 
 
 def get_norm_layer(norm_type: str) -> Callable[[int], nn.Module]:
