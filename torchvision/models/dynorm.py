@@ -118,21 +118,56 @@ class DySV(DyBase):
         return self.softsign(alpha * x)
 
 
-def get_norm_layer(norm_type: str) -> Callable[[int], nn.Module]:
-    """Return a normalization layer based on the specified type."""
+class DyRMS(DyBase):
+    """Dynamic RMS-like activation with scalar alpha."""
+
+    def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
+        super().__init__(num_features, init_alpha, vector_alpha=False)
+        self.epsilon = 1e-5
+
+    def activation(self, x: torch.Tensor, alpha: torch.Tensor) -> torch.Tensor:
+        return x / torch.sqrt(alpha ** 2 + x ** 2 + self.epsilon)
+
+
+class DyRMSV(DyBase):
+    """Dynamic RMS-like activation with vector alpha."""
+
+    def __init__(self, num_features: int, init_alpha: float = 1.0) -> None:
+        super().__init__(num_features, init_alpha, vector_alpha=True)
+        self.epsilon = 1e-5
+
+    def activation(self, x: torch.Tensor, alpha: torch.Tensor) -> torch.Tensor:
+        return x / torch.sqrt(alpha ** 2 + x ** 2 + self.epsilon)
+
+
+def get_norm_layer(norm_type: str, init_alpha: float = 1.0) -> Callable[[int], nn.Module]:
+    """
+    Returns a normalization layer constructor based on the specified type.
+
+    Args:
+        norm_type: Type of normalization layer ('batch', 'dyt', 'dytv', etc.)
+        init_alpha: Initial value for alpha parameter in dynamic activations
+
+    Returns:
+        A function that takes num_features as input and returns a normalization module
+    """
     if norm_type == 'batch':
         return nn.BatchNorm2d
     elif norm_type == 'dyt':
-        return DyT
+        return lambda num_features: DyT(num_features, init_alpha=init_alpha)
     elif norm_type == 'dytv':
-        return DyTV
+        return lambda num_features: DyTV(num_features, init_alpha=init_alpha)
     elif norm_type == 'dyas':
-        return DyAS
+        return lambda num_features: DyAS(num_features, init_alpha=init_alpha)
     elif norm_type == 'dyasv':
-        return DyASV
+        return lambda num_features: DyASV(num_features, init_alpha=init_alpha)
     elif norm_type == 'dys':
-        return DyS
+        return lambda num_features: DyS(num_features, init_alpha=init_alpha)
     elif norm_type == 'dysv':
-        return DySV
+        return lambda num_features: DySV(num_features, init_alpha=init_alpha)
+    elif norm_type == 'dyrms':
+        return lambda num_features: DyRMS(num_features, init_alpha=init_alpha)
+    elif norm_type == 'dyrmsv':
+        return lambda num_features: DyRMSV(num_features, init_alpha=init_alpha)
     else:
         raise ValueError(f'Unknown normalization type {norm_type}.')
