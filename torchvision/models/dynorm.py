@@ -7,19 +7,22 @@ from torch import nn
 class AffineTransform(nn.Module):
     """Affine transformation layer for dynamic activation functions."""
 
-    def __init__(self, num_features: int) -> None:
+    def __init__(self, num_features: int, use_gamma: bool = False) -> None:
         super().__init__()
         self.num_features = num_features
-        self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
+        self.use_gamma = use_gamma
+        if self.use_gamma:
+            self.gamma = nn.Parameter(torch.ones(num_features))
 
     def __repr__(self) -> str:
-        return f"AffineTransform({self.num_features})"
+        return f"AffineTransform({self.num_features}, use_gamma={self.use_gamma})"
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        gamma = self.gamma.view(1, -1, 1, 1)
-        beta = self.beta.view(1, -1, 1, 1)
-        return gamma * x + beta
+        if self.use_gamma:
+            return self.gamma.view(1, -1, 1, 1) * x + self.beta.view(1, -1, 1, 1)
+        else:
+            return x + self.beta.view(1, -1, 1, 1)
 
 
 class DyBase(nn.Module):
