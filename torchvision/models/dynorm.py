@@ -47,7 +47,8 @@ class DyBase(nn.Module):
         return (f"{self.__class__.__name__}("
                 f"{self.num_features}, "
                 f"init_alpha={self.init_alpha:.1f}, "
-                f"alpha_type={alpha_type})")
+                f"alpha_type={alpha_type})"
+                f"affine={self.affine})")
 
     def get_alpha(self) -> torch.Tensor:
         """Return alpha in the right shape for operations based on vector_alpha flag."""
