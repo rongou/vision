@@ -10,6 +10,8 @@ from typing import List, Optional, Tuple
 import torch
 import torch.distributed as dist
 
+import torchvision.models.dynorm
+
 
 class SmoothedValue:
     """Track a series of values and provide access to smoothed values over a
@@ -416,6 +418,9 @@ def set_weight_decay(
             torch.nn.GroupNorm,
             torch.nn.modules.instancenorm._InstanceNorm,
             torch.nn.LocalResponseNorm,
+            torchvision.models.dynorm.DyT,
+            torchvision.models.dynorm.DyAS,
+            torchvision.models.dynorm.DyASV,
         ]
     norm_classes = tuple(norm_classes)
 
