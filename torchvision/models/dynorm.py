@@ -10,6 +10,7 @@ class DyT(nn.Module):
     def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
         super().__init__()
         self.num_features = num_features
+        self.init_alpha = init_alpha
         self.alpha = nn.Parameter(torch.tensor(init_alpha))
         self.gamma = nn.Parameter(torch.ones(num_features))
         self.beta = nn.Parameter(torch.zeros(num_features))
@@ -17,7 +18,7 @@ class DyT(nn.Module):
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}("
                 f"{self.num_features}, "
-                f"init_alpha={self.alpha.item():.1f})")
+                f"init_alpha={self.init_alpha:.1f})")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         gamma = self.gamma.view(1, -1, 1, 1)
@@ -32,13 +33,14 @@ class DyAS(nn.Module):
     def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
         super().__init__()
         self.num_features = num_features
+        self.init_alpha = init_alpha
         self.alpha = nn.Parameter(torch.tensor(init_alpha))
         self.beta = nn.Parameter(torch.zeros(num_features))
 
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}("
                 f"{self.num_features}, "
-                f"init_alpha={self.alpha.item():.1f})")
+                f"init_alpha={self.init_alpha:.1f})")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         beta = self.beta.view(1, -1, 1, 1)
@@ -52,13 +54,14 @@ class DyASV(nn.Module):
     def __init__(self, num_features: int, init_alpha: float = 0.5) -> None:
         super().__init__()
         self.num_features = num_features
+        self.init_alpha = init_alpha
         self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
         self.beta = nn.Parameter(torch.zeros(num_features))
 
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}("
                 f"{self.num_features}, "
-                f"init_alpha={self.alpha.item():.1f})")
+                f"init_alpha={self.init_alpha:.1f})")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         alpha = self.alpha.view(1, -1, 1, 1)
