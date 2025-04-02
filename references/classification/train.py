@@ -251,6 +251,7 @@ def main(args):
         weights=args.weights,
         num_classes=num_classes,
         norm_layer=dynorm.get_norm_layer(args.norm_type, init_alpha=args.init_alpha),
+        use_relu=args.use_relu,
     )
     print(model)
     model.to(device)
@@ -406,6 +407,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
     parser.add_argument("--norm-type", default="batch", type=str, help="normalization type")
     parser.add_argument("--init-alpha", default=1.0, type=float, help="Initial alpha value for dynamic normalizations")
+    parser.add_argument("--use-relu", action="store_true", default=True, help="Use ReLU activations in the network (default: True)")
     parser.add_argument("--device", default="cuda", type=str, help="device (Use cuda or cpu Default: cuda)")
     parser.add_argument(
         "-b", "--batch-size", default=32, type=int, help="images per gpu, the total batch size is $NGPU x batch_size"
