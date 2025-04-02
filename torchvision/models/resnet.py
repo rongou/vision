@@ -183,6 +183,7 @@ class ResNet(nn.Module):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
+        self._use_relu = use_relu
 
         self.inplanes = 64
         self.dilation = 1
@@ -248,7 +249,7 @@ class ResNet(nn.Module):
         layers = []
         layers.append(
             block(
-                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer
+                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer, self._use_relu
             )
         )
         self.inplanes = planes * block.expansion
@@ -261,6 +262,7 @@ class ResNet(nn.Module):
                     base_width=self.base_width,
                     dilation=self.dilation,
                     norm_layer=norm_layer,
+                    use_relu=self._use_relu,
                 )
             )
 
