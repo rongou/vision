@@ -307,6 +307,10 @@ def main(args):
         main_lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             optimizer, T_max=args.epochs - args.lr_warmup_epochs, eta_min=args.lr_min
         )
+    elif args.lr_scheduler == "cosineannealingwarmrestarts":
+        main_lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, T_0=args.lr_step_size, T_mult=1, eta_min=args.lr_min
+        )
     elif args.lr_scheduler == "exponentiallr":
         main_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=args.lr_gamma)
     else:
