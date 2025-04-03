@@ -75,7 +75,7 @@ def get_norm_layer(norm_type: str, init_alpha: float = 1.0) -> Callable[[int], n
     Returns a normalization layer constructor based on the specified type.
 
     Args:
-        norm_type: Type of normalization layer ('batch', 'dyt', 'dytv', etc.)
+        norm_type: Type of normalization layer ('batch', 'dyt', 'dyas', etc.)
         init_alpha: Initial value for alpha parameter in dynamic activations
 
     Returns:

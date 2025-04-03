@@ -273,6 +273,12 @@ def main(args):
         norm_weight_decay=args.norm_weight_decay,
         custom_keys_weight_decay=custom_keys_weight_decay if len(custom_keys_weight_decay) > 0 else None,
     )
+    for i, group in enumerate(parameters):
+        print(f"\nParam Group {i} - weight_decay={group['weight_decay']}")
+        for p in group['params']:
+            print(f" - param shape: {tuple(p.shape)} requires_grad: {p.requires_grad}")
+            if hasattr(p, 'name'):
+                print(f"   name: {p.name}")
 
     opt_name = args.opt.lower()
     if opt_name.startswith("sgd"):
