@@ -81,7 +81,7 @@ class BasicBlock(nn.Module):
             raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv3x3(inplanes, planes, stride)
-        self.bn1 = norm_layer(planes)
+        self.bn1 = norm_layer(inplanes if pre_norm else planes)
         self.relu = nn.ReLU(inplace=True) if use_relu else nn.Identity()
         self.pre_norm = pre_norm
         self.conv2 = conv3x3(planes, planes)
@@ -144,11 +144,11 @@ class Bottleneck(nn.Module):
         width = int(planes * (base_width / 64.0)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv1x1(inplanes, width)
-        self.bn1 = norm_layer(width)
+        self.bn1 = norm_layer(inplanes if pre_norm else width)
         self.conv2 = conv3x3(width, width, stride, groups, dilation)
         self.bn2 = norm_layer(width)
         self.conv3 = conv1x1(width, planes * self.expansion)
-        self.bn3 = norm_layer(planes * self.expansion)
+        self.bn3 = norm_layer(width if pre_norm else planes * self.expansion)
         self.relu = nn.ReLU(inplace=True) if use_relu else nn.Identity()
         self.pre_norm = pre_norm
         self.downsample = downsample
@@ -267,10 +267,16 @@ class ResNet(nn.Module):
             self.dilation *= stride
             stride = 1
         if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = nn.Sequential(
-                conv1x1(self.inplanes, planes * block.expansion, stride),
-                norm_layer(planes * block.expansion),
-            )
+            if self._pre_norm:
+                downsample = nn.Sequential(
+                    norm_layer(self.inplanes),
+                    conv1x1(self.inplanes, planes * block.expansion, stride),
+                )
+            else:
+                downsample = nn.Sequential(
+                    conv1x1(self.inplanes, planes * block.expansion, stride),
+                    norm_layer(planes * block.expansion),
+                )
 
         layers = []
         layers.append(
