@@ -425,6 +425,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--activation-noise-std", default=0.0, type=float, help="Standard deviation of activation noise")
     parser.add_argument(
         "--pre-norm",
+        dest="pre_norm",
         action="store_true",
         help="Do pre-normalization instead of post-normalization (default: False)",
     )
