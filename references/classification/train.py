@@ -254,6 +254,7 @@ def main(args):
             args.norm_type, init_alpha=args.init_alpha, activation_noise_std=args.activation_noise_std
         ),
         use_relu=args.use_relu,
+        pre_norm=args.pre_norm,
     )
     print(model)
     model.to(device)
@@ -422,6 +423,11 @@ def get_args_parser(add_help=True):
     parser.add_argument("--norm-type", default="batch", type=str, help="normalization type")
     parser.add_argument("--init-alpha", default=0.5, type=float, help="Initial alpha value for dynamic normalizations")
     parser.add_argument("--activation-noise-std", default=0.0, type=float, help="Standard deviation of activation noise")
+    parser.add_argument(
+        "--pre-norm",
+        action="store_true",
+        help="Do pre-normalization instead of post-normalization (default: False)",
+    )
     parser.add_argument(
         "--no-use-relu",
         dest="use_relu",

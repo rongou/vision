@@ -70,6 +70,7 @@ class BasicBlock(nn.Module):
         dilation: int = 1,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
         use_relu: bool = True,
+        pre_norm: bool = False,
     ) -> None:
         super().__init__()
         if norm_layer is None:
@@ -82,6 +83,7 @@ class BasicBlock(nn.Module):
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = norm_layer(planes)
         self.relu = nn.ReLU(inplace=True) if use_relu else nn.Identity()
+        self.pre_norm = pre_norm
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = norm_layer(planes)
         self.downsample = downsample
@@ -90,12 +92,20 @@ class BasicBlock(nn.Module):
     def forward(self, x: Tensor) -> Tensor:
         identity = x
 
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
+        if self.pre_norm:
+            out = self.bn1(x)
+            out = self.conv1(out)
+            out = self.relu(out)
 
-        out = self.conv2(out)
-        out = self.bn2(out)
+            out = self.bn2(out)
+            out = self.conv2(out)
+        else:
+            out = self.conv1(x)
+            out = self.bn1(out)
+            out = self.relu(out)
+
+            out = self.conv2(out)
+            out = self.bn2(out)
 
         if self.downsample is not None:
             identity = self.downsample(x)
@@ -126,6 +136,7 @@ class Bottleneck(nn.Module):
         dilation: int = 1,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
         use_relu: bool = True,
+        pre_norm: bool = False,
     ) -> None:
         super().__init__()
         if norm_layer is None:
@@ -139,22 +150,35 @@ class Bottleneck(nn.Module):
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.bn3 = norm_layer(planes * self.expansion)
         self.relu = nn.ReLU(inplace=True) if use_relu else nn.Identity()
+        self.pre_norm = pre_norm
         self.downsample = downsample
         self.stride = stride
 
     def forward(self, x: Tensor) -> Tensor:
         identity = x
 
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
+        if self.pre_norm:
+            out = self.bn1(x)
+            out = self.conv1(out)
+            out = self.relu(out)
 
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
+            out = self.bn2(out)
+            out = self.conv2(out)
+            out = self.relu(out)
 
-        out = self.conv3(out)
-        out = self.bn3(out)
+            out = self.bn3(out)
+            out = self.conv3(out)
+        else:
+            out = self.conv1(x)
+            out = self.bn1(out)
+            out = self.relu(out)
+
+            out = self.conv2(out)
+            out = self.bn2(out)
+            out = self.relu(out)
+
+            out = self.conv3(out)
+            out = self.bn3(out)
 
         if self.downsample is not None:
             identity = self.downsample(x)
@@ -177,6 +201,7 @@ class ResNet(nn.Module):
         replace_stride_with_dilation: Optional[List[bool]] = None,
         norm_layer: Optional[Callable[..., nn.Module]] = None,
         use_relu: bool = True,
+        pre_norm: bool = False,
     ) -> None:
         super().__init__()
         _log_api_usage_once(self)
@@ -184,6 +209,7 @@ class ResNet(nn.Module):
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
         self._use_relu = use_relu
+        self._pre_norm = pre_norm
 
         self.inplanes = 64
         self.dilation = 1
@@ -249,7 +275,7 @@ class ResNet(nn.Module):
         layers = []
         layers.append(
             block(
-                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer, self._use_relu
+                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer, self._use_relu, self._pre_norm
             )
         )
         self.inplanes = planes * block.expansion
@@ -263,6 +289,7 @@ class ResNet(nn.Module):
                     dilation=self.dilation,
                     norm_layer=norm_layer,
                     use_relu=self._use_relu,
+                    pre_norm=self._pre_norm,
                 )
             )
 
@@ -270,8 +297,13 @@ class ResNet(nn.Module):
 
     def _forward_impl(self, x: Tensor) -> Tensor:
         # See note [TorchScript super()]
-        x = self.conv1(x)
-        x = self.bn1(x)
+        if self._pre_norm:
+            x = self.bn1(x)
+            x = self.conv1(x)
+        else:
+            x = self.conv1(x)
+            x = self.bn1(x)
+
         x = self.relu(x)
         x = self.maxpool(x)
 
