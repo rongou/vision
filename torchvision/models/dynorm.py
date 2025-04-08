@@ -1,3 +1,4 @@
+import math
 from typing import Callable
 
 import torch
@@ -35,7 +36,8 @@ class DyAS(nn.Module):
         self.num_features = num_features
         self.init_alpha = init_alpha
         self.activation_noise_std = activation_noise_std
-        self.alpha = nn.Parameter(torch.tensor(init_alpha))
+        # log-space parameterization of alpha to ensure positivity
+        self.theta = nn.Parameter(torch.tensor(math.log(self.init_alpha)))
         self.beta = nn.Parameter(torch.zeros(num_features))
 
     def __repr__(self) -> str:
@@ -45,10 +47,11 @@ class DyAS(nn.Module):
                 f"activation_noise_std={self.activation_noise_std:.2f})")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        alpha = torch.exp(self.theta)
         beta = self.beta.view(1, -1, 1, 1)
         if self.training and self.activation_noise_std > 0:
             x = x + torch.randn_like(x) * self.activation_noise_std
-        x = x / torch.sqrt(1 + (self.alpha * x) ** 2)
+        x = x / torch.sqrt(1 + (alpha * x) ** 2)
         return x + beta
 
 
@@ -60,7 +63,8 @@ class DyASV(nn.Module):
         self.num_features = num_features
         self.init_alpha = init_alpha
         self.activation_noise_std = activation_noise_std
-        self.alpha = nn.Parameter(torch.ones(num_features) * init_alpha)
+        # log-space parameterization of alpha to ensure positivity
+        self.theta = nn.Parameter(torch.full((num_features,), math.log(self.init_alpha)))
         self.beta = nn.Parameter(torch.zeros(num_features))
 
     def __repr__(self) -> str:
@@ -70,7 +74,7 @@ class DyASV(nn.Module):
                 f"activation_noise_std={self.activation_noise_std:.1f})")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        alpha = self.alpha.view(1, -1, 1, 1)
+        alpha = torch.exp(self.theta).view(1, -1, 1, 1)
         beta = self.beta.view(1, -1, 1, 1)
         if self.training and self.activation_noise_std > 0:
             x = x + torch.randn_like(x) * self.activation_noise_std
