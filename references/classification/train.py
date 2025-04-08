@@ -250,9 +250,7 @@ def main(args):
         args.model,
         weights=args.weights,
         num_classes=num_classes,
-        norm_layer=dynorm.get_norm_layer(
-            args.norm_type, init_alpha=args.init_alpha, activation_noise_std=args.activation_noise_std
-        ),
+        norm_layer=dynorm.get_norm_layer(args.norm_type, init_alpha=args.init_alpha),
         use_relu=args.use_relu,
         pre_norm=args.pre_norm,
     )
@@ -422,7 +420,6 @@ def get_args_parser(add_help=True):
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
     parser.add_argument("--norm-type", default="batch", type=str, help="normalization type")
     parser.add_argument("--init-alpha", default=0.5, type=float, help="Initial alpha value for dynamic normalizations")
-    parser.add_argument("--activation-noise-std", default=0.0, type=float, help="Standard deviation of activation noise")
     parser.add_argument(
         "--pre-norm",
         dest="pre_norm",
