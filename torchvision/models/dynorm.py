@@ -42,8 +42,7 @@ class DyAS(nn.Module):
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}("
                 f"{self.num_features}, "
-                f"init_alpha={self.init_alpha:.1f}, "
-                f"activation_noise_std={self.activation_noise_std:.2f})")
+                f"init_alpha={self.init_alpha:.1f})")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         alpha = torch.exp(self.theta)
@@ -65,8 +64,7 @@ class DyASV(nn.Module):
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}("
                 f"{self.num_features}, "
-                f"init_alpha={self.init_alpha:.1f}, "
-                f"activation_noise_std={self.activation_noise_std:.1f})")
+                f"init_alpha={self.init_alpha:.1f})")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         alpha = torch.exp(self.theta).view(1, -1, 1, 1)
